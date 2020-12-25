@@ -25,12 +25,12 @@ int main (){
 	vector<stock> S;
 	vector<stock> L;  
 	string command = ""; 
-	
+	string dataline = "User/new$/mainscreen ";
 	
 	cout << "Welcome to Investats this terminal Is where you can acces all your investment data. "<< endl; 
 	
 	while (command != "q" || command != "Q"){
-		cout << "User/new$/mainscreen "; 
+		cout << dataline; 
 		getline(cin, command, '\n');
 
 		
@@ -40,29 +40,24 @@ int main (){
 		
 			string tmp;
 			int linenum = 0; 
+			float hold; 
 			 
 			 
 			while (getline(f, tmp)){
 				
 				S.push_back(stock());
 				f >> S[linenum].ticker; 
-				cout << S[linenum].ticker << " "; 
-
-				f >> tmp; 
-				cout << tmp << " ";
 				
-				f >> tmp; 
-				cout << tmp << " ";
+				f >> S[linenum].overnight_percent; 
 				
-				f >> tmp; 
-				cout << tmp << " ";
+				f >> S[linenum].opening_price; 
 				
-				f >> tmp; 
-				cout << tmp << " "; 
+				f >> S[linenum].closing_price; 
 				
-				f >> tmp; 
-				cout << tmp << " \n"; 
+				f>> S[linenum].high_price; 
 				
+				f >> S[linenum].low_price; 
+								
 				S[linenum].daytrade = 1 - (S[linenum].opening_price / S[linenum].closing_price); 
 				
 				S[linenum].maxlong = 1 - (S[linenum].opening_price / S[linenum].high_price); 
@@ -79,32 +74,27 @@ int main (){
 			
 			while (getline(w, tmp)){
 				L.push_back(stock());
-				w >> L[linenum].ticker; 
-				 
+				w >> L[linenum].ticker;
 				
-				w >> tmp; 
-				L[linenum].overnight_percent = stof(tmp); 
+				w >> L[linenum].overnight_percent; 
 				
-				w >> tmp; 
-				L[linenum].opening_price = stof(tmp);
+				w >> L[linenum].opening_price; 
 				
-				w >> tmp; 
-				L[linenum].closing_price = stof(tmp);
+				w >> L[linenum].closing_price; 
 				
-				w >> tmp; 
-				L[linenum].high_price = stof(tmp); 
+				w >> L[linenum].high_price; 
 				
-				w >> tmp; 
-				L[linenum].low_price = stof(tmp); 
-				
+				w >> L[linenum].low_price; 
+								
 				L[linenum].daytrade = 1 - (L[linenum].opening_price / L[linenum].closing_price); 
 				
 				L[linenum].maxlong = 1 - (L[linenum].opening_price / L[linenum].high_price);
 				
-				
-				linenum++;  
-				
 			} 
+			
+			cout << endl << "Data of overnight winners added" << endl << endl;
+			dataline = dataline + "/winnerdata ";  
+				 
 		}
 		// add the statistics to the dataset
 			
@@ -147,6 +137,49 @@ int main (){
 				
 				}
 			} while (tick != "NULL"); 	
+		}
+		else if (command == "add -w"){
+			{
+			w.open("data.txt", ios::app); 
+			
+			string tick, over, open, close, max, min;
+			cout << endl<< endl; 
+			cout << "\t \t Add new stock to dataset" << endl; 
+			cout << endl; 
+			do {
+				cout << "Ticker: "; 
+				cin >> tick; 
+				
+				if (tick != "NULL"){
+					 
+					cout << "Overnight Change: "; 
+					cin >> over; 
+					cout << endl; 
+
+					
+					cout << "Opening Price: "; 
+					cin >> open; 
+					cout << endl; 
+					
+					cout << "Closing Price: ";
+					cin >> close; 
+					cout << endl; 
+										
+					cout << "Daily High: "; 
+					cin >> max; 
+					cout << endl; 
+					
+					cout << "Daily Low: "; 
+					cin >> min; 
+					cout << endl; 
+										
+					w << tick << " "<< over << " " << open << " " << close << " " << max << " "<< min << "\n";  
+					
+				
+				}
+			} while (tick != "NULL"); 	
+		}
+			
 		}
 		else if (command == "q" || command == "Q"){
 			break; 
