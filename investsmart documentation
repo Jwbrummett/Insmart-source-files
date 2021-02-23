@@ -1,0 +1,18 @@
+Structs/ Datatypes
+	
+	Stock: Takes the Stock input data, includes the following  inputed fields: 
+
+		 overnight_percent = The overnight percent change of the stock.
+		 opening_price  = The price that the Stock opens at when the 
+		 closing_price = The price that the Stock closed on at the end fo the day.
+		 high_price = The hiest price the stock in question reached during any point during the trading day. 
+		 low_price = Lowest price during reached during any point in the trading day. 
+
+	Also includes the following calculated fields: 
+
+		daytrade = The final resault of a stock'sf;luctuation during the day is calculated using this formula: 
+
+			(Final price - Opening Price) * 
+
+		maxlong
+		maxshort	 
