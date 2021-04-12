@@ -5,7 +5,7 @@
 #include <vector> 
 #include <string>
 #include <algorithm>
-
+#include <cmath>
 
 using namespace std; 
 struct stock{
@@ -15,15 +15,13 @@ struct stock{
 	double closing_price; 
 	double high_price; 
 	double low_price; 
-	
-	// need the calculated values as well (how they did percentage wise etc. )
 	double daytrade, maxlong, maxshort; }; 
 void sync (vector<stock>&, string, int&); 
 void addlosers (string); 
 void addwinners (string);
 void printdata(vector<stock>&); 
 void simple (vector<stock>&, float&, float&, float&); 
-void standard_dev(vector<stock>&, float&, float&, int&, float&, float&); 
+void standard_dev(vector<stock>&, float&, float&, int&, float&, float&, float&); 
 
 int main (){ 
 	vector<stock> S;
@@ -38,14 +36,7 @@ int main (){
 	float lp_avg = 0, wp_avg = 0; //the averages for the overnight changes, l loser changes, and w for winner changes
 
 
-
-	float wlong_corr = 0, wshort_corr = 0, lshort_corr = 0, llong_corr = 0; // The correlations used for the more in depth stats
-
-
 	int lcount = 0, wcount = 0; // Counts for the various datasets, the l is long count and w is loser count. 
-
-
-	float wlong_std = 0, wshort_std = 0, llong_std = 0, lshort_std = 0; // standard deviations for the max longs and max shorts of each scinarios. 
 	
 
 
@@ -149,7 +140,7 @@ int main (){
 				}	 
 			}
 			else if (command == "corr -w"){
-				standard_dev(L, wlong_avg, wshort_avg, wp_avg, wlong_std, wshort_std); 
+				standard_dev(L, wlong_avg, wshort_avg, wcount, wlong_std, wshort_std, wp_avg); 
 			}
 			else if (command == "corr -l"){
 
@@ -167,52 +158,52 @@ int main (){
 
 void sync (vector<stock>& S, string filename, int& i){
 	fstream f; 
-	f.open(filename);  
-			 
+	f.open(filename);  	 
 		
-			string tmp;
-			 i = 0; 			 
+	string tmp;
+	i = 0; 			 
 			 
-			while (getline(f, tmp)){
+	while (getline(f, tmp)){
 				
-				S.push_back(stock());
+		S.push_back(stock());
 				
-				f >> S[i].ticker; 
+		f >> S[i].ticker; 
 				
-				f >> S[i].overnight_percent; 
+		f >> S[i].overnight_percent; 
 				
-				f >> S[i].opening_price; 
+		f >> S[i].opening_price; 
 				
-				f >> S[i].closing_price; 
+		f >> S[i].closing_price; 
 				
-				f>> S[i].high_price; 
+		f>> S[i].high_price; 
 				
-				f >> S[i].low_price; 
+		f >> S[i].low_price; 
 				
-				if (S[i].closing_price > S[i].opening_price){				
-					S[i].daytrade = (1 - (S[i].closing_price / S[i].opening_price)) * 100; 
-				}
-				else{
-					
-				}
+		if (S[i].closing_price > S[i].opening_price){				
+			S[i].daytrade = (1 - (S[i].closing_price / S[i].opening_price)) * 100; 
+		}
 
-				if (S[i].opening_price != S[i].high_price){
+
+		if (S[i].opening_price != S[i].high_price){
 					S[i].maxlong = (1 - (S[i].opening_price / S[i].high_price)) * 100; 
-				}
-				else {
-					S[i].maxlong = 0; 
-				}
+		}
+
+		else {
+			S[i].maxlong = 0; 
+		}
 				
-				if (S[i].opening_price != S[i].low_price){
+		if (S[i].opening_price != S[i].low_price){
 					S[i].maxshort = (1 - (S[i].opening_price / S[i].low_price)) * -100;
-				}
-				else {
-					S[i].maxshort = 0; 
-				}
+		}
+
+		else {
+			S[i].maxshort = 0; 
+		}
 				
-				i++; 
+		i++; 
 	
-			}}
+			}
+}
 void addlosers (string filename){
 	fstream f; 
 	f.open(filename, ios::app); 
@@ -248,7 +239,7 @@ void addlosers (string filename){
 			cin >> min; 
 			cout << endl; 
 										
-			f << tick << " -0."<< over << " " << open << " " << close << " " << max << " "<< min << "\n";  
+			f  << "\n" << tick << " -0."<< over << " " << open << " " << close << " " << max << " "<< min;  
 		}
 	} while (tick != "NULL"); 	}
 void addwinners (string filename){
@@ -309,8 +300,6 @@ void printdata(vector<stock>& S){
 }
 void simple(vector<stock>& S, float& long_avg, float& short_avg, float& p_average) // simple overarching statistics of the entire dataset
 {
-	 
-
 	long double lpercent = 0, spercent = 0, ppercent = 0; 
 	float lost_long = 0, lost_short = 0, both_lost = 0, both_hit = 0 , profit_long_count = 0, profit_short_count = 0, three_long = 0, three_short = 0; 
 	int i = 0; 
@@ -340,7 +329,7 @@ void simple(vector<stock>& S, float& long_avg, float& short_avg, float& p_averag
 			lost_short++;
 		}
 	}
-
+	cout << i; 
 	lpercent = lpercent / i; 
 	long_avg = lpercent; 
 	spercent = spercent / i; 
@@ -355,17 +344,45 @@ void simple(vector<stock>& S, float& long_avg, float& short_avg, float& p_averag
 	
 	cout << "\n\nPercent Short Unprofitable: %" << (lost_short / i) * 100 << "\nUnprofitable Long: %" << (lost_long / i) * 100 << "\n\n"; 
 
-	cout <<" \n\nAvg. gain: %" << lpercent << " \nAvg. loss: %" << spercent << "\n\n"; 
+	cout <<" \n\nAvg. max long: %" << lpercent << " \nAvg. max short: %" << spercent << "\n\n"; 
 }
-void standard_dev(vector<stock>& S, float& meanlongmax, float& meanshortmax, int& datacount, float& stdD_long, float& stdD_short)
-{   
-	// calculate the standard deviation for each of the long and short positions
-	double wvarience_hold, wtotal_varience; 
-		// varience of the long positions
-	for (int i = 0; i < datacount; i++){
-		vareince_hold = S[i].maxlong - meanlongmax; 
-		total_varience = total_varience + varience_hold; 
+void search(vector<stock>& S, string &d){
+	string CommandString; 
+	float SearchOvernight, SearchPrice;
+	vector<Stock> matches; 
+	short int nextquintet = 5; 
+
+
+	cout << d << "/search "; 
+	cin.get(CommandString,8,';'); 
+
+	if (CommandString == "gsearch" || CommandString == "Gsearch"){
+		cout << d << "/search/GeneralSearch "; 
+		cin >> SearchOvernight >> SearchPrice; 
+
+		for (int i = 0; i < S.size();){
+			if (S[i].overnight_percent <= SearchOvernight + 0.4 && S[i].overnight_percent >= SearchOvernight - 0.4 ){
+				// add to a new vector or dynamic array in this case. Copy the whole data point from the struct
+				i++; 
+				nextquintet--;
+			}
+			else if (S[i].overnight_percent > SearchOvernight + 0.4){
+				i++; 
+				nextquintet--; 
+			}
+		}
+
 	}
-	cout << total_varience; 
-	// calculate the regression and relationshiop between the maxprice long/short and the daily average of the percets. 
+
+	else if (CommandString == "ssearch" || CommandString == "Ssearch"){
+		cout << d << "/search/StockSearch "; 
+	}
+}
+void stockcopy(struct Stock &from, struct Stock &to){
+	// copies all the information from one stock to another
+	strcpy(to.ticker, from.ticker);
+	to.overnight_percent = from.overnight_percent;
+	to.opening_price = from.opening_price; 
+	to.maxlong = from.maxlong; 
+	to.maxshort = from.maxshort; 
 }
